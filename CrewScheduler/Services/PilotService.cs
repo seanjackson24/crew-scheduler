@@ -4,7 +4,12 @@ using CrewScheduler.Models;
 
 namespace CrewScheduler.Services
 {
-	public class PilotService
+	public interface IPilotService
+	{
+		Task<int?> GetNextAvailablePilot(PilotScheduleRequest request);
+	}
+
+	public class PilotService : IPilotService
 	{
 		private readonly IFileService _fileService;
 

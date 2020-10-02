@@ -1,10 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace CrewScheduler.Models
 {
 	public class PilotScheduleRequest
 	{
-		public Base Location { get; set; }
+		public string Location { get; set; }
 		public DateTime DepartureDateTime { get; set; }
 		public DateTime ReturnDateTime { get; set; }
 	}

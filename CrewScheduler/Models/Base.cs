@@ -1,8 +1,8 @@
 namespace CrewScheduler.Models
 {
-	public enum Base
+	public static class Base
 	{
-		Munich,
-		Berlin
+		public const string Munich = nameof(Munich);
+		public const string Berlin = nameof(Berlin);
 	}
 }

@@ -19,15 +19,16 @@ namespace CrewScheduler.Controllers
 		};
 
 		private readonly ILogger<PilotController> _logger;
-		private readonly PilotService _scheduleService;
+		private readonly IPilotService _scheduleService;
 
-		public PilotController(ILogger<PilotController> logger)
+		public PilotController(ILogger<PilotController> logger, IPilotService scheduleService)
 		{
 			_logger = logger;
+			_scheduleService = scheduleService;
 		}
 
-		[HttpGet]
-		public async Task<int?> Get(PilotScheduleRequest request)
+		[HttpPost]
+		public async Task<int?> Post(PilotScheduleRequest request)
 		{
 			return await _scheduleService.GetNextAvailablePilot(request);
 		}
