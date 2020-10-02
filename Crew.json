@@ -1,6 +1,5 @@
 {
-    "Crew": [
-        {
+    "Crew": [{
             "ID": 1,
             "Name": "Andy",
             "Base": "Munich",
