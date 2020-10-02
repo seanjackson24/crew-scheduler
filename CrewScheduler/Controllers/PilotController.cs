@@ -32,5 +32,12 @@ namespace CrewScheduler.Controllers
 		{
 			return await _scheduleService.GetNextAvailablePilot(request);
 		}
+
+		[HttpPost]
+		public async Task<ActionResult> Confirm(PilotScheduleConfirmation request)
+		{
+			await _scheduleService.ConfirmPilotSchedule(request);
+			return Ok();
+		}
 	}
 }

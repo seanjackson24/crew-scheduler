@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CrewScheduler.Models;
@@ -7,6 +8,7 @@ namespace CrewScheduler.Services
 	public interface IPilotService
 	{
 		Task<int?> GetNextAvailablePilot(PilotScheduleRequest request);
+		Task ConfirmPilotSchedule(PilotScheduleConfirmation request);
 	}
 
 	public class PilotService : IPilotService
@@ -18,7 +20,22 @@ namespace CrewScheduler.Services
 			this._fileService = fileService;
 		}
 
+		public async Task ConfirmPilotSchedule(PilotScheduleConfirmation request)
+		{
+			var scheduleRequest = new PilotScheduleRequest() { DepartureDateTime = request.DepartureDateTime, Location = request.Location, ReturnDateTime = request.ReturnDateTime };
+			var availablePilots = await GetAvailablePilots(scheduleRequest);
+			if (!availablePilots.Any(id => request.PilotId == id))
+			{
+				throw new System.Exception(); // TODO
+			}
+		}
+
 		public async Task<int?> GetNextAvailablePilot(PilotScheduleRequest request)
+		{
+			return (await GetAvailablePilots(request)).FirstOrDefault();
+		}
+
+		private async Task<IOrderedEnumerable<int>> GetAvailablePilots(PilotScheduleRequest request)
 		{
 			var date = request.DepartureDateTime.DayOfWeek;
 
@@ -41,7 +58,7 @@ namespace CrewScheduler.Services
 				return null;
 			var pilotsBySchedule = pilots.GroupBy(p => p.PilotId, (id, grp) => grp.Count()).ToDictionary(i => i, g => g);
 
-			return availablePilots.OrderBy(p => pilotsBySchedule.TryGetValue(p, out var count) ? count : 0).FirstOrDefault();
+			return availablePilots.OrderBy(p => pilotsBySchedule.TryGetValue(p, out var count) ? count : 0);
 		}
 	}
 }

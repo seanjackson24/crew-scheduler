@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace CrewScheduler.Services
 	{
 		Task<IEnumerable<PilotScheduleInfo>> GetPilotSchedulesForDay(DateTime day);
 		Task<IEnumerable<PilotWorkSchedule>> GetPilotWorkSchedules();
-		Task Update(IEnumerable<PilotScheduleInfo> pilotSchedules);
+		Task AddPilotToSchedule(PilotScheduleInfo pilotSchedules);
 	}
 	public class FileService : IFileService
 	{
@@ -28,12 +29,16 @@ namespace CrewScheduler.Services
 			_options.Converters.Add(new JsonStringEnumConverter());
 		}
 
-		public async Task Update(IEnumerable<PilotScheduleInfo> pilotSchedules)
+		public async Task AddPilotToSchedule(PilotScheduleInfo pilotSchedules)
 		{
-			var content = JsonSerializer.Serialize(pilotSchedules, _options);
+			var existingSchedule = (await GetPilotSchedulesForDay(DateTime.Now)).ToList();
+			existingSchedule.Add(pilotSchedules);
+
+			var content = JsonSerializer.Serialize(existingSchedule, _options);
 			await File.WriteAllTextAsync(ScheduleFile, content);
 		}
 
+		// TODO: filter to just this day
 		public async Task<IEnumerable<PilotScheduleInfo>> GetPilotSchedulesForDay(DateTime day)
 		{
 			string path = Path.Combine(_environment.ContentRootPath, ScheduleFile);
