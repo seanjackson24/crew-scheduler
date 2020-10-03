@@ -34,10 +34,10 @@ namespace CrewScheduler.Controllers
 		}
 
 		[HttpPost]
-		public async Task<ActionResult> Confirm(PilotScheduleConfirmation request)
+		public async Task<ActionResult<PilotScheduleConfirmationResult>> Confirm(PilotScheduleConfirmation request)
 		{
-			await _scheduleService.ConfirmPilotSchedule(request);
-			return Ok();
+			bool result = await _scheduleService.ConfirmPilotSchedule(request);
+			return new PilotScheduleConfirmationResult(result);
 		}
 	}
 }
