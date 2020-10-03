@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CrewScheduler.Models;
@@ -6,42 +7,62 @@ namespace CrewScheduler.Services
 {
 	public interface IPilotService
 	{
-		Task<int?> GetNextAvailablePilot(PilotScheduleRequest request);
+		Task<GetNextAvailablePilotResponse> GetNextAvailablePilot(PilotScheduleRequest request);
 		Task<bool> ConfirmPilotSchedule(PilotScheduleConfirmation request);
 	}
 
 	public class PilotService : IPilotService
 	{
 		private readonly IFileService _fileService;
+		private readonly ITimeProvider _timeProvider;
 
-		public PilotService(IFileService fileService)
-		{
-			this._fileService = fileService;
-		}
+        public PilotService(IFileService fileService, ITimeProvider timeProvider)
+        {
+            this._fileService = fileService;
+            _timeProvider = timeProvider;
+        }
 
-		public async Task<bool> ConfirmPilotSchedule(PilotScheduleConfirmation request)
+        public async Task<bool> ConfirmPilotSchedule(PilotScheduleConfirmation request)
 		{
-			var scheduleRequest = new PilotScheduleRequest() { DepartureDateTime = request.DepartureDateTime, Location = request.Location, ReturnDateTime = request.ReturnDateTime };
-			var availablePilots = await GetAvailablePilots(scheduleRequest);
-			var pilot = availablePilots?.FirstOrDefault(id => request.PilotId == id);
-			if (pilot == null) return false;
-			var schedule = new PilotScheduleInfo()
-			{
-				PilotId = request.PilotId,
-				DepartureDateTime = request.DepartureDateTime,
-				ReturnDateTime = request.ReturnDateTime
-			};
-			await _fileService.AddPilotToSchedule(schedule);
+			var reservationExpiry = _timeProvider.UtcNow().AddMinutes(-10);
+
+			var pilotSchedules = await _fileService.GetPilotSchedulesForDay(request.DepartureDateTime.Date);
+			var schedule = pilotSchedules.FirstOrDefault(p => !p.IsConfirmed && p.ReservationKey == request.ReservationKey && p.PilotId == request.PilotId);
+			if (schedule == null || schedule.ReservationTime < reservationExpiry) return false;
+			schedule.IsConfirmed = true;
+			await _fileService.UpdatePilotSchedule(schedule);
 			return true;
 		}
 
-		public async Task<int?> GetNextAvailablePilot(PilotScheduleRequest request)
+		private async Task PencilInPilotSchedule(int pilotId, string reservationKey, DateTime departureDateTime, DateTime returnDateTime)
 		{
-			return (await GetAvailablePilots(request))?.FirstOrDefault();
+			var schedule = new PilotScheduleInfo()
+			{
+				PilotId = pilotId,
+				ReservationKey = reservationKey,
+				ReservationTime = _timeProvider.UtcNow(),
+				DepartureDateTime = departureDateTime,
+				ReturnDateTime = returnDateTime,
+				IsConfirmed = false
+			};
+			await _fileService.AddPilotToSchedule(schedule);
+		}
+
+		public async Task<GetNextAvailablePilotResponse> GetNextAvailablePilot(PilotScheduleRequest request)
+		{
+			var nextAvailablePilot = (await GetAvailablePilots(request))?.FirstOrDefault();
+			if (nextAvailablePilot == null)
+			{
+				return new GetNextAvailablePilotResponse(null, null);
+			}
+			string reservationKey = Guid.NewGuid().ToString();
+			await PencilInPilotSchedule(nextAvailablePilot.Value, reservationKey, request.DepartureDateTime, request.ReturnDateTime);
+			return new GetNextAvailablePilotResponse(nextAvailablePilot, reservationKey);
 		}
 
 		private async Task<IOrderedEnumerable<int>> GetAvailablePilots(PilotScheduleRequest request)
 		{
+			var reservationExpiry = _timeProvider.UtcNow().AddMinutes(-10);
 			var date = request.DepartureDateTime.DayOfWeek;
 
 			var workSchedules = (await _fileService.GetPilotWorkSchedules()).Where(p => p.Base == request.Location && p.WorkDays.Any(d => d == date));
@@ -50,8 +71,9 @@ namespace CrewScheduler.Services
 				return null;
 			}
 
-			var pilots = await _fileService.GetPilotSchedulesForDay(request.DepartureDateTime.Date);
-			var unAvailable = pilots.Where(p =>
+			var pilotSchedules = await _fileService.GetPilotSchedulesForDay(request.DepartureDateTime.Date);
+			var unAvailable = pilotSchedules.Where(p =>
+				(p.IsConfirmed || p.ReservationTime > reservationExpiry) &&
 				!((p.DepartureDateTime < request.DepartureDateTime && p.ReturnDateTime < request.DepartureDateTime)
 				||
 				(p.DepartureDateTime > request.ReturnDateTime))
@@ -61,7 +83,7 @@ namespace CrewScheduler.Services
 			var availablePilots = workSchedules.Where(ws => !unAvailable.Contains(ws.PilotId)).Select(p => p.PilotId);
 			if (!availablePilots.Any())
 				return null;
-			var pilotsBySchedule = pilots.GroupBy(p => p.PilotId, (id, grp) => grp.Count()).ToDictionary(i => i, g => g);
+			var pilotsBySchedule = pilotSchedules.GroupBy(p => p.PilotId, (id, grp) => grp.Count()).ToDictionary(i => i, g => g);
 
 			return availablePilots.OrderBy(p => pilotsBySchedule.TryGetValue(p, out var count) ? count : 0);
 		}

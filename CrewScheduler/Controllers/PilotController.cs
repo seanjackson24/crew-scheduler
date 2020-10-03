@@ -13,13 +13,9 @@ namespace CrewScheduler.Controllers
 	[Route("[controller]")]
 	public class PilotController : ControllerBase
 	{
-		private static readonly string[] Summaries = new[]
-		{
-			"Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-		};
-
 		private readonly ILogger<PilotController> _logger;
 		private readonly IPilotService _scheduleService;
+		private readonly ITimeProvider _timeProvider;
 
 		public PilotController(ILogger<PilotController> logger, IPilotService scheduleService)
 		{
@@ -28,8 +24,12 @@ namespace CrewScheduler.Controllers
 		}
 
 		[HttpPost]
-		public async Task<int?> Post(PilotScheduleRequest request)
+		public async Task<ActionResult<GetNextAvailablePilotResponse>> Post(PilotScheduleRequest request)
 		{
+			if (request.DepartureDateTime < _timeProvider.UtcNow() || request.ReturnDateTime < request.DepartureDateTime)
+			{
+				return BadRequest();
+			}
 			return await _scheduleService.GetNextAvailablePilot(request);
 		}
 

@@ -8,5 +8,6 @@ namespace CrewScheduler.Models
 		public DateTime DepartureDateTime { get; set; }
 		public DateTime ReturnDateTime { get; set; }
 		public int PilotId { get; set; }
+		public string ReservationKey { get; set; }
 	}
 }

@@ -15,6 +15,7 @@ namespace CrewScheduler.Services
 		Task<IEnumerable<PilotScheduleInfo>> GetPilotSchedulesForDay(DateTime day);
 		Task<IEnumerable<PilotWorkSchedule>> GetPilotWorkSchedules();
 		Task AddPilotToSchedule(PilotScheduleInfo pilotSchedules);
+		Task UpdatePilotSchedule(PilotScheduleInfo schedule);
 	}
 	public class FileService : IFileService
 	{
@@ -22,18 +23,28 @@ namespace CrewScheduler.Services
 		private const string ScheduleFile = "Schedule.json";
 		private readonly JsonSerializerOptions _options = new JsonSerializerOptions();
 		private readonly IWebHostEnvironment _environment;
+		private readonly ITimeProvider _timeProvider;
 
-		public FileService(IWebHostEnvironment environment)
-		{
-			_environment = environment;
-			_options.Converters.Add(new JsonStringEnumConverter());
-		}
+        public FileService(IWebHostEnvironment environment, ITimeProvider timeProvider)
+        {
+            _environment = environment;
+            _options.Converters.Add(new JsonStringEnumConverter());
+            _timeProvider = timeProvider;
+        }
 
-		public async Task AddPilotToSchedule(PilotScheduleInfo pilotSchedules)
+        public async Task AddPilotToSchedule(PilotScheduleInfo pilotSchedules)
 		{
-			var existingSchedule = (await GetPilotSchedulesForDay(DateTime.Now)).ToList();
+			var existingSchedule = (await GetPilotSchedulesForDay(_timeProvider.UtcNow())).ToList();
 			existingSchedule.Add(pilotSchedules);
 
+			var content = JsonSerializer.Serialize(existingSchedule, _options);
+			await File.WriteAllTextAsync(ScheduleFile, content);
+		}
+
+		public async Task UpdatePilotSchedule(PilotScheduleInfo schedule)
+		{
+			var existingSchedule = (await GetPilotSchedulesForDay(_timeProvider.UtcNow()));
+			existingSchedule.First(p => p.ReservationKey == schedule.ReservationKey).IsConfirmed = true;
 			var content = JsonSerializer.Serialize(existingSchedule, _options);
 			await File.WriteAllTextAsync(ScheduleFile, content);
 		}
