@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace CrewScheduler.Models
 {
 	public class PilotWorkSchedule
 	{
+		[JsonPropertyName("ID")]
 		public int PilotId { get; set; }
 		public string Name { get; set; }
 		public string Base { get; set; }

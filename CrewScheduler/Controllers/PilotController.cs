@@ -17,12 +17,14 @@ namespace CrewScheduler.Controllers
 		private readonly IPilotService _scheduleService;
 		private readonly ITimeProvider _timeProvider;
 
-		public PilotController(ILogger<PilotController> logger, IPilotService scheduleService)
+		public PilotController(ILogger<PilotController> logger, IPilotService scheduleService, ITimeProvider timeProvider)
 		{
 			_logger = logger;
 			_scheduleService = scheduleService;
+			_timeProvider = timeProvider;
 		}
 
+		[Route("GetNextAvailable")]
 		[HttpPost]
 		public async Task<ActionResult<GetNextAvailablePilotResponse>> Post(PilotScheduleRequest request)
 		{
@@ -33,6 +35,7 @@ namespace CrewScheduler.Controllers
 			return await _scheduleService.GetNextAvailablePilot(request);
 		}
 
+		[Route("ConfirmSchedule")]
 		[HttpPost]
 		public async Task<ActionResult<PilotScheduleConfirmationResult>> Confirm(PilotScheduleConfirmation request)
 		{

@@ -16,13 +16,13 @@ namespace CrewScheduler.Services
 		private readonly IFileService _fileService;
 		private readonly ITimeProvider _timeProvider;
 
-        public PilotService(IFileService fileService, ITimeProvider timeProvider)
-        {
-            this._fileService = fileService;
-            _timeProvider = timeProvider;
-        }
+		public PilotService(IFileService fileService, ITimeProvider timeProvider)
+		{
+			this._fileService = fileService;
+			_timeProvider = timeProvider;
+		}
 
-        public async Task<bool> ConfirmPilotSchedule(PilotScheduleConfirmation request)
+		public async Task<bool> ConfirmPilotSchedule(PilotScheduleConfirmation request)
 		{
 			var reservationExpiry = _timeProvider.UtcNow().AddMinutes(-10);
 
@@ -83,7 +83,7 @@ namespace CrewScheduler.Services
 			var availablePilots = workSchedules.Where(ws => !unAvailable.Contains(ws.PilotId)).Select(p => p.PilotId);
 			if (!availablePilots.Any())
 				return null;
-			var pilotsBySchedule = pilotSchedules.GroupBy(p => p.PilotId, (id, grp) => grp.Count()).ToDictionary(i => i, g => g);
+			var pilotsBySchedule = pilotSchedules.GroupBy(p => p.PilotId).ToDictionary(i => i.Key, g => g.Count());
 
 			return availablePilots.OrderBy(p => pilotsBySchedule.TryGetValue(p, out var count) ? count : 0);
 		}

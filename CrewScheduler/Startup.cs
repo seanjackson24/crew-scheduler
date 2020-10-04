@@ -32,6 +32,7 @@ namespace CrewScheduler
 
 			services.AddSingleton<IPilotService, PilotService>();
 			services.AddSingleton<IFileService, FileService>();
+			services.AddSingleton<ITimeProvider, TimeProvider>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
