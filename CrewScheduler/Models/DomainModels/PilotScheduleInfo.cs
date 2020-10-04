@@ -1,8 +1,7 @@
 using System;
 
-namespace CrewScheduler.Models
+namespace CrewScheduler.Models.DomainModels
 {
-	// move to domain
 	public class PilotScheduleInfo
 	{
 		public int PilotId { get; set; }

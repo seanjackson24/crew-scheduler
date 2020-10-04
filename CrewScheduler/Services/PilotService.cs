@@ -1,14 +1,15 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using CrewScheduler.Models;
+using CrewScheduler.Models.ApiModels;
+using CrewScheduler.Models.DomainModels;
 
 namespace CrewScheduler.Services
 {
 	public interface IPilotService
 	{
 		Task<GetNextAvailablePilotResponse> GetNextAvailablePilot(PilotScheduleRequest request);
-		Task<bool> ConfirmPilotSchedule(PilotScheduleConfirmation request);
+		Task<bool> ConfirmPilotSchedule(PilotScheduleConfirmationRequest request);
 	}
 
 	public class PilotService : IPilotService
@@ -22,7 +23,7 @@ namespace CrewScheduler.Services
 			_timeProvider = timeProvider;
 		}
 
-		public async Task<bool> ConfirmPilotSchedule(PilotScheduleConfirmation request)
+		public async Task<bool> ConfirmPilotSchedule(PilotScheduleConfirmationRequest request)
 		{
 			var reservationExpiry = _timeProvider.UtcNow().AddMinutes(-10);
 

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace CrewScheduler.Models
+namespace CrewScheduler.Models.DomainModels
 {
 	public class PilotWorkSchedule
 	{

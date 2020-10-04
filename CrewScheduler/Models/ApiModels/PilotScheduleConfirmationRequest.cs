@@ -1,8 +1,8 @@
 using System;
 
-namespace CrewScheduler.Models
+namespace CrewScheduler.Models.ApiModels
 {
-	public class PilotScheduleConfirmation
+	public class PilotScheduleConfirmationRequest
 	{
 		public string Location { get; set; }
 		public DateTime DepartureDateTime { get; set; }

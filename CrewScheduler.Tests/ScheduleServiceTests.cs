@@ -4,7 +4,8 @@ using Moq;
 using System.Threading.Tasks;
 using CrewScheduler.Services;
 using System.Linq;
-using CrewScheduler.Models;
+using CrewScheduler.Models.ApiModels;
+using CrewScheduler.Models.DomainModels;
 using System.Collections.Generic;
 
 namespace CrewScheduler.Tests
@@ -415,7 +416,7 @@ namespace CrewScheduler.Tests
 
             _fileServiceMock.Setup(x => x.GetPilotWorkSchedules()).ReturnsAsync(pilots);
             _fileServiceMock.Setup(x => x.GetPilotSchedulesForDay(TwoPm.Date)).ReturnsAsync(schedules);
-            var request = new PilotScheduleConfirmation()
+            var request = new PilotScheduleConfirmationRequest()
             {
                 Location = Base.Berlin,
                 DepartureDateTime = TwoPm,
@@ -452,7 +453,7 @@ namespace CrewScheduler.Tests
 
             _fileServiceMock.Setup(x => x.GetPilotWorkSchedules()).ReturnsAsync(pilots);
             _fileServiceMock.Setup(x => x.GetPilotSchedulesForDay(TwoPm.Date)).ReturnsAsync(schedules);
-            var request = new PilotScheduleConfirmation()
+            var request = new PilotScheduleConfirmationRequest()
             {
                 Location = Base.Berlin,
                 DepartureDateTime = TwoPm,
@@ -489,7 +490,7 @@ namespace CrewScheduler.Tests
 
             _fileServiceMock.Setup(x => x.GetPilotWorkSchedules()).ReturnsAsync(pilots);
             _fileServiceMock.Setup(x => x.GetPilotSchedulesForDay(TwoPm.Date)).ReturnsAsync(schedules);
-            var request = new PilotScheduleConfirmation()
+            var request = new PilotScheduleConfirmationRequest()
             {
                 Location = Base.Berlin,
                 DepartureDateTime = TwoPm,

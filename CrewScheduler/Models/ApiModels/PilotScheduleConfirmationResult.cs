@@ -1,4 +1,4 @@
-namespace CrewScheduler.Models
+namespace CrewScheduler.Models.ApiModels
 {
 	public class PilotScheduleConfirmationResult
 	{

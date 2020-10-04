@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using CrewScheduler.Models;
+using CrewScheduler.Models.DomainModels;
 using Microsoft.AspNetCore.Hosting;
 
 namespace CrewScheduler.Services
@@ -49,7 +49,6 @@ namespace CrewScheduler.Services
 			await File.WriteAllTextAsync(ScheduleFile, content);
 		}
 
-		// TODO: filter to just this day
 		public async Task<IEnumerable<PilotScheduleInfo>> GetPilotSchedulesForDay(DateTime day)
 		{
 			string path = Path.Combine(_environment.ContentRootPath, ScheduleFile);
@@ -59,7 +58,7 @@ namespace CrewScheduler.Services
 				File.WriteAllText(path, "[]");
 			}
 			var contents = await File.ReadAllTextAsync(path);
-			return JsonSerializer.Deserialize<IEnumerable<PilotScheduleInfo>>(contents, _options);
+			return JsonSerializer.Deserialize<IEnumerable<PilotScheduleInfo>>(contents, _options).Where(p => p.DepartureDateTime.Date == day);
 		}
 
 		public async Task<IEnumerable<PilotWorkSchedule>> GetPilotWorkSchedules()

@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CrewScheduler.Models;
+﻿using System.Threading.Tasks;
 using CrewScheduler.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using CrewScheduler.Models.ApiModels;
 
 namespace CrewScheduler.Controllers
 {
-	[ApiController]
+    [ApiController]
 	[Route("[controller]")]
 	public class PilotController : ControllerBase
 	{
@@ -37,7 +34,7 @@ namespace CrewScheduler.Controllers
 
 		[Route("ConfirmSchedule")]
 		[HttpPost]
-		public async Task<ActionResult<PilotScheduleConfirmationResult>> Confirm(PilotScheduleConfirmation request)
+		public async Task<ActionResult<PilotScheduleConfirmationResult>> Confirm(PilotScheduleConfirmationRequest request)
 		{
 			bool result = await _scheduleService.ConfirmPilotSchedule(request);
 			return new PilotScheduleConfirmationResult(result);

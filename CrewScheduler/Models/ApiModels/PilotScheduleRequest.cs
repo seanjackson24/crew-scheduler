@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrewScheduler.Models
+namespace CrewScheduler.Models.ApiModels
 {
 	public class PilotScheduleRequest
 	{

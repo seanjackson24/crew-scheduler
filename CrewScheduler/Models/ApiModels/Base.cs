@@ -1,4 +1,4 @@
-namespace CrewScheduler.Models
+namespace CrewScheduler.Models.ApiModels
 {
 	public static class Base
 	{
