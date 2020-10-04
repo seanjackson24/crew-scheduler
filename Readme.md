@@ -7,7 +7,10 @@ A Crew Scheduling API to provide on-demand crew scheduling info to other service
 -   dotnet core SDK 3.1 or later (https://dotnet.microsoft.com/download/dotnet-core/3.1)
 
 -   Ensure the local development certificate is trusted by running:
+
     > dotnet dev-certs https --trust
+
+-   Place the crew.json file in the root of the API project (I have included it in source control so you can see)
 
 # Run API Backend:
 
@@ -29,12 +32,8 @@ As an example using the command-line utility [httpie](https://httpie.org/), you 
 
     If successful, you should get back a response such as:
 
-    > {
+    > { "pilotId": 3, "reservationKey": "e4f1327e-e6a3-4ec7-b860-ac440eb41d38" }
 
-        "pilotId": 3,
-        "reservationKey": "e4f1327e-e6a3-4ec7-b860-ac440eb41d38"
-
-    }
     See below for usage of this reservation key.
 
 -   If there are no pilots available, this should then return a response such as:
